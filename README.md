@@ -61,8 +61,8 @@ The uploaded notebook compares the following models:
     19.Calculate Random Forest and Gradient Boosting feature importance.
     20.Plot the RMSE comparison graph for all regression models.
 ## PROGRAM
-    <img width="747" height="707" alt="image" src="https://github.com/user-attachments/assets/099698b2-4419-4b1f-8dfa-95bca4f80b9f" />
-	<img width="330" height="736" alt="image" src="https://github.com/user-attachments/assets/5c8c9c98-a926-4bbc-ac64-d698c7ba7b5c" />
+<img width="747" height="707" alt="image" src="https://github.com/user-attachments/assets/099698b2-4419-4b1f-8dfa-95bca4f80b9f" />
+<img width="330" height="736" alt="image" src="https://github.com/user-attachments/assets/5c8c9c98-a926-4bbc-ac64-d698c7ba7b5c" />
 	
 
 
