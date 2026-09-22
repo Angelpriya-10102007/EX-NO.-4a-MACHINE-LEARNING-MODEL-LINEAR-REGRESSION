@@ -61,8 +61,596 @@ The uploaded notebook compares the following models:
     19.Calculate Random Forest and Gradient Boosting feature importance.
     20.Plot the RMSE comparison graph for all regression models.
 ## PROGRAM
-<img width="747" height="707" alt="image" src="https://github.com/user-attachments/assets/099698b2-4419-4b1f-8dfa-95bca4f80b9f" />
-<img width="330" height="736" alt="image" src="https://github.com/user-attachments/assets/5c8c9c98-a926-4bbc-ac64-d698c7ba7b5c" />
+    
+
+from google.colab import drive
+
+drive.mount('/content/drive')
+
+import pandas as pd
+
+df = pd.read_csv('/content/drive/My Drive/house_datasets.csv')
+
+df.head()
+
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, PolynomialFeatures
+
+from sklearn.linear_model import LinearRegression, Ridge, Lasso, ElasticNet
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.svm import SVR
+from sklearn.neighbors import KNeighborsRegressor
+
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+
+
+print("Dataset Information:")
+df.info()
+
+print("\nDataset Shape:")
+print(df.shape)
+
+print("\nStatistical Summary:")
+print(df.describe())
+
+print("\nMissing Values:")
+print(df.isnull().sum())
+
+
+
+
+df.hist(figsize=(12, 8))
+plt.tight_layout()
+plt.show()
+
+
+
+plt.figure(figsize=(8, 6))
+
+sns.heatmap(
+    df.corr(numeric_only=True),
+    annot=True,
+    cmap='coolwarm'
+)
+
+plt.title("Correlation Heatmap")
+plt.show()
+
+
+
+features = [
+    'square_feet',
+    'num_rooms',
+    'age',
+    'distance_to_city(km)'
+]
+
+for feature in features:
+
+    plt.figure(figsize=(6, 4))
+
+    plt.scatter(
+        df[feature],
+        df['price']
+    )
+
+    plt.xlabel(feature)
+    plt.ylabel('Price')
+    plt.title(feature + ' vs Price')
+
+    plt.show()
+
+
+
+plt.figure(figsize=(6, 4))
+
+sns.boxplot(
+    y=df['price']
+)
+
+plt.title("Price Outliers")
+plt.show()
+
+
+
+lower_limit = df['price'].quantile(0.01)
+upper_limit = df['price'].quantile(0.99)
+
+df = df[
+    (df['price'] >= lower_limit) &
+    (df['price'] <= upper_limit)
+]
+
+print("Shape after removing outliers:")
+print(df.shape)
+
+
+
+X = df[
+    [
+        'square_feet',
+        'num_rooms',
+        'age',
+        'distance_to_city(km)'
+    ]
+]
+
+y = df['price']
+
+print("\nFeatures:")
+print(X.head())
+
+print("\nTarget:")
+print(y.head())
+
+
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42
+)
+
+print("\nTraining Data:")
+print(X_train.shape)
+
+print("\nTesting Data:")
+print(X_test.shape)
+
+
+
+scaler = StandardScaler()
+
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+print("\nFeature Scaling Completed")
+
+
+
+baseline_prediction = np.full(
+    len(y_test),
+    y_train.mean()
+)
+
+baseline_rmse = np.sqrt(
+    mean_squared_error(
+        y_test,
+        baseline_prediction
+    )
+)
+
+baseline_mae = mean_absolute_error(
+    y_test,
+    baseline_prediction
+)
+
+baseline_r2 = r2_score(
+    y_test,
+    baseline_prediction
+)
+
+print("\nBaseline Model")
+print("RMSE:", baseline_rmse)
+print("MAE:", baseline_mae)
+print("R2:", baseline_r2)
+
+
+
+linear_model = LinearRegression()
+
+linear_model.fit(
+    X_train_scaled,
+    y_train
+)
+
+linear_pred = linear_model.predict(
+    X_test_scaled
+)
+
+
+ridge_model = Ridge()
+
+ridge_model.fit(
+    X_train_scaled,
+    y_train
+)
+
+ridge_pred = ridge_model.predict(
+    X_test_scaled
+)
+
+
+
+lasso_model = Lasso()
+
+lasso_model.fit(
+    X_train_scaled,
+    y_train
+)
+
+lasso_pred = lasso_model.predict(
+    X_test_scaled
+)
+
+
+elastic_model = ElasticNet()
+
+elastic_model.fit(
+    X_train_scaled,
+    y_train
+)
+
+elastic_pred = elastic_model.predict(
+    X_test_scaled
+)
+
+
+
+poly = PolynomialFeatures(
+    degree=2
+)
+
+X_train_poly = poly.fit_transform(
+    X_train_scaled
+)
+
+X_test_poly = poly.transform(
+    X_test_scaled
+)
+
+poly_model = LinearRegression()
+
+poly_model.fit(
+    X_train_poly,
+    y_train
+)
+
+poly_pred = poly_model.predict(
+    X_test_poly
+)
+
+
+dt_model = DecisionTreeRegressor(
+    random_state=42
+)
+
+dt_model.fit(
+    X_train,
+    y_train
+)
+
+dt_pred = dt_model.predict(
+    X_test
+)
+
+
+
+rf_model = RandomForestRegressor(
+    n_estimators=100,
+    random_state=42
+)
+
+rf_model.fit(
+    X_train,
+    y_train
+)
+
+rf_pred = rf_model.predict(
+    X_test
+)
+
+
+
+gb_model = GradientBoostingRegressor(
+    n_estimators=100,
+    learning_rate=0.1,
+    random_state=42
+)
+
+gb_model.fit(
+    X_train,
+    y_train
+)
+
+gb_pred = gb_model.predict(
+    X_test
+)
+
+
+
+svr_model = SVR(
+    kernel='rbf',
+    C=100,
+    gamma=0.1,
+    epsilon=0.1
+)
+
+svr_model.fit(
+    X_train_scaled,
+    y_train
+)
+
+svr_pred = svr_model.predict(
+    X_test_scaled
+)
+
+
+
+knn_model = KNeighborsRegressor(
+    n_neighbors=5
+)
+
+knn_model.fit(
+    X_train_scaled,
+    y_train
+)
+
+knn_pred = knn_model.predict(
+    X_test_scaled
+)
+
+
+
+def evaluate_model(name, y_true, y_pred):
+
+    rmse = np.sqrt(
+        mean_squared_error(
+            y_true,
+            y_pred
+        )
+    )
+
+    mae = mean_absolute_error(
+        y_true,
+        y_pred
+    )
+
+    r2 = r2_score(
+        y_true,
+        y_pred
+    )
+
+    return {
+        'Model': name,
+        'RMSE': rmse,
+        'MAE': mae,
+        'R2': r2
+    }
+
+
+results = []
+
+results.append(
+    evaluate_model(
+        'Linear Regression',
+        y_test,
+        linear_pred
+    )
+)
+
+results.append(
+    evaluate_model(
+        'Ridge Regression',
+        y_test,
+        ridge_pred
+    )
+)
+
+results.append(
+    evaluate_model(
+        'Lasso Regression',
+        y_test,
+        lasso_pred
+    )
+)
+
+results.append(
+    evaluate_model(
+        'ElasticNet',
+        y_test,
+        elastic_pred
+    )
+)
+
+results.append(
+    evaluate_model(
+        'Polynomial Regression',
+        y_test,
+        poly_pred
+    )
+)
+
+results.append(
+    evaluate_model(
+        'Decision Tree',
+        y_test,
+        dt_pred
+    )
+)
+
+results.append(
+    evaluate_model(
+        'Random Forest',
+        y_test,
+        rf_pred
+    )
+)
+
+results.append(
+    evaluate_model(
+        'Gradient Boosting',
+        y_test,
+        gb_pred
+    )
+)
+
+results.append(
+    evaluate_model(
+        'SVR',
+        y_test,
+        svr_pred
+    )
+)
+
+results.append(
+    evaluate_model(
+        'KNN',
+        y_test,
+        knn_pred
+    )
+)
+
+
+results_df = pd.DataFrame(results)
+
+results_df = results_df.sort_values(
+    by='RMSE'
+)
+
+print("\nMODEL COMPARISON")
+print(results_df)
+
+
+
+predictions = {
+    'Linear Regression': linear_pred,
+    'Ridge': ridge_pred,
+    'Lasso': lasso_pred,
+    'ElasticNet': elastic_pred,
+    'Polynomial': poly_pred,
+    'Decision Tree': dt_pred,
+    'Random Forest': rf_pred,
+    'Gradient Boosting': gb_pred,
+    'SVR': svr_pred,
+    'KNN': knn_pred
+}
+
+for name, prediction in predictions.items():
+
+    plt.figure(figsize=(6, 4))
+
+    plt.scatter(
+        y_test,
+        prediction
+    )
+
+    plt.xlabel("Actual Price")
+    plt.ylabel("Predicted Price")
+
+    plt.title(
+        name + " - Actual vs Predicted"
+    )
+
+    plt.show()
+
+
+for name, prediction in predictions.items():
+
+    residuals = y_test - prediction
+
+    plt.figure(figsize=(6, 4))
+
+    plt.scatter(
+        prediction,
+        residuals
+    )
+
+    plt.axhline(
+        y=0,
+        linestyle='--'
+    )
+
+    plt.xlabel("Predicted Price")
+    plt.ylabel("Residuals")
+
+    plt.title(
+        name + " - Residual Plot"
+    )
+
+    plt.show()
+
+
+
+importance = rf_model.feature_importances_
+
+feature_importance = pd.DataFrame({
+    'Feature': X.columns,
+    'Importance': importance
+})
+
+feature_importance = feature_importance.sort_values(
+    by='Importance',
+    ascending=False
+)
+
+print("\nRandom Forest Feature Importance:")
+print(feature_importance)
+
+plt.figure(figsize=(8, 5))
+
+plt.bar(
+    feature_importance['Feature'],
+    feature_importance['Importance']
+)
+
+plt.xlabel("Features")
+plt.ylabel("Importance")
+plt.title("Random Forest Feature Importance")
+
+plt.xticks(rotation=45)
+
+plt.tight_layout()
+plt.show()
+
+
+gb_importance = gb_model.feature_importances_
+
+gb_feature_importance = pd.DataFrame({
+    'Feature': X.columns,
+    'Importance': gb_importance
+})
+
+gb_feature_importance = gb_feature_importance.sort_values(
+    by='Importance',
+    ascending=False
+)
+
+print("\nGradient Boosting Feature Importance:")
+print(gb_feature_importance)
+
+
+
+plt.figure(figsize=(10, 6))
+
+plt.bar(
+    results_df['Model'],
+    results_df['RMSE']
+)
+
+plt.xlabel("Models")
+plt.ylabel("RMSE")
+
+plt.title(
+    "RMSE Comparison of Regression Models"
+)
+
+plt.xticks(
+    rotation=45,
+    ha='right'
+)
+
+plt.tight_layout()
+plt.show()
 	
 
 
